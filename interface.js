@@ -36,7 +36,8 @@ $(document).ready(function()
 			{
 				if(ai[ailist[i]].hit(world.cursor))
 				{
-					interface.selected.push(parseInt(ailist[i]));
+					if(	interface.selected.indexOf(ailist[i]) == -1 )
+						interface.selected.push( parseInt(ailist[i]) );
 				}
 			}
 		}
@@ -83,7 +84,7 @@ $(document).ready(function()
 
 		if(event.keyCode == 82)
 		{
-			light = new ship("rocket",20);
+			light = new ship("fighter",20);
 			light.pos.x = world.cursor.x;
 			light.pos.y = world.cursor.y;
 			light.rot = Math.random()*360;
@@ -92,12 +93,22 @@ $(document).ready(function()
 
 		if(event.keyCode == 83)
 		{
-			light = new ship("light",21);
+			light = new ship("fighter",21);
 			light.pos.x = world.cursor.x;
 			light.pos.y = world.cursor.y;
 			light.rot = Math.random()*360;
 			light.order("move",world.cursor);
 		}
+
+		if(event.keyCode == 84)
+		{
+			light = new ship("rocket",19);
+			light.pos.x = world.cursor.x;
+			light.pos.y = world.cursor.y;
+			light.rot = Math.random()*360;
+			light.order("move",world.cursor);
+		}
+
 
 		return false;
 	});

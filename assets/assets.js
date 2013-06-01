@@ -14,7 +14,7 @@ var sprite = {rocket_ship:{
 									w:37,
 									h:20,
 									asset: img_ship}
-							},
+					},
 			fighter:{
 							still:{ x:0,
 									y:0,
@@ -26,7 +26,7 @@ var sprite = {rocket_ship:{
 									w:20,
 									h:20,
 									asset: img_ship}
-							},
+					},
 			warhead:{
 							bullet:{
 								moving:{x:186,
@@ -35,8 +35,15 @@ var sprite = {rocket_ship:{
 										h:1,
 										asset: img_ship}
 								
+									},
+							rocket:{
+								moving:{x:184,
+										y:8,
+										w:11,
+										h:4,
+										asset: img_ship}								
 									}
-							},
+					}
 			  };
 
 var anim = {pop:{
@@ -76,6 +83,14 @@ var anim = {pop:{
 							y:42,
 							w:21,
 							h:21},
+					count: 5,
+					fps: 28,
+					asset: img_effect},
+			  shockwave:{
+					key:{   x:10,
+							y:119,
+							w:33,
+							h:33},
 					count: 5,
 					fps: 28,
 					asset: img_effect}

@@ -8,6 +8,7 @@ function hardpoint(type,parent,pos)
 		this.parent = parent;
 		this.rot = 0.0;
 		this.time = 0;
+		this.stat = 0;
 		this.warhead = "";
 
 		switch(type)
@@ -29,13 +30,22 @@ function hardpoint(type,parent,pos)
 			case "forward gun":
 				valid = ["minigun"];
 			break;
+
+			case "fixed salvo":
+				valid = ["med rocket","fast rocket","lge rocket"];
+			break;
 		}
 	
 		if(valid.indexOf(weapon) != -1)
 		{
 			this.warhead = weapon;
+			
+			var projectile = new warhead(this.warhead);
+			this.stat = projectile.stat;
+
 			return true;
 		}
+
 		return false;
 	}
 
@@ -46,13 +56,12 @@ function hardpoint(type,parent,pos)
 
 		switch(type)
 		{
-			default:
-
-			case "gun":
+			case "forward gun":				
+				var offs = rotatePoints(this.pos.x/world.grid,this.pos.y/world.grid,this.parent.rot);
 
 				var projectile = new warhead(this.warhead);
-				projectile.pos.x = parent.pos.x;
-				projectile.pos.y = parent.pos.y;
+				projectile.pos.x = parent.pos.x+offs.x;
+				projectile.pos.y = parent.pos.y+offs.y;
 				projectile.ignore = parent.id;
 				projectile.faction = parent.faction;
 				projectile.rot = parent.rot;
@@ -67,6 +76,30 @@ function hardpoint(type,parent,pos)
 				return false;
 
 			break;
+
+		
+			case "fixed salvo":				
+				var offs = rotatePoints(this.pos.x/world.grid,this.pos.y/world.grid,this.parent.rot);
+
+				var projectile = new warhead(this.warhead);
+				projectile.pos.x = parent.pos.x+offs.x;
+				projectile.pos.y = parent.pos.y+offs.y;
+				projectile.ignore = parent.id;
+				projectile.faction = parent.faction;
+				projectile.target = parent.target.attack.id;
+				projectile.rot = parent.rot+this.pos.r;
+
+				var timer = new Date();
+				if(this.time < timer.getTime())
+				{
+					this.time = timer.getTime() + projectile.stat.delay*1000;
+					projectile.launch();
+					return true;
+				}
+				return false;
+
+			break;		
+		
 		}
 	}
 

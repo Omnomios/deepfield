@@ -16,18 +16,26 @@ function ship(type,faction)
 
 		this.lastimpact = 0;
 		this.hardpoint = [];
+		this.range = 0;
 		this.shield = [];
-
 		this.faction = faction;
 
 		switch(type)
 		{
 			default:
-			case "light":
+			case "fighter":
 				this.hull = { max:100.0, charge: 0.0, delay: 1000, ammo:1000.0, acharge:1.0, power:2.5, speed:2, mass:1.0, vision:4};
-				this.shield = { max:100.0, charge: 50 , delay: 5000 }
-				this.hardpoints = [{pos:{x:0,y:7},type:"forward gun", warhead:"minigun"}];
+				this.shield = { max:50.0, charge: 25 , delay: 2500 }
+				this.hardpoints = [	{pos:{x:0,y:-4},type:"forward gun", warhead:"minigun"}];
 				this.sprite = sprite.fighter
+			break;
+
+			case "rocket":
+				this.hull = { max:800.0, charge: 0.0, delay: 1000, ammo:1000.0, acharge:1.0, power:0.5, speed:1.5, mass:5.0, vision:7};
+				this.shield = { max:300.0, charge: 50 , delay: 5000 }
+				this.hardpoints = [	{pos:{x:-6,y:0,r:-90},type:"fixed salvo", warhead:"med rocket"},
+									{pos:{x:6,y:0,r:90},type:"fixed salvo", warhead:"med rocket"}];
+				this.sprite = sprite.rocket_ship
 			break;
 		}
 
@@ -40,13 +48,18 @@ function ship(type,faction)
 			hpo.equip(hp.warhead);
 			this.hardpoint.push(hpo);
 		}		
+
+		for(var i in this.hardpoint)
+			this.range += (this.hardpoint[i].stat.life * this.hardpoint[i].stat.speed);
+		this.range /= this.hardpoint.length;
+
 	}
 
 	this.hit = hit;
 	function hit(location)
 	{
 		if(this.stat.shield > 2)
-			return (distance(this.pos,location) < (this.sprite.still.w*1.2)/world.grid);
+			return (distance(this.pos,location) < (this.sprite.still.w*1)/world.grid);
 		else
 			return (distance(this.pos,location) < (this.sprite.still.w*0.7)/world.grid);
 	}
@@ -65,6 +78,7 @@ function ship(type,faction)
 
 			var fx = new effect(anim.shield_20);
 			fx.pos = this.pos;
+			fx.scale = 1 * (this.sprite.still.w / 20);
 			fx.rot = angle(this.pos,projectile.pos);
 		}
 		else
@@ -234,13 +248,26 @@ function ship(type,faction)
 		{
 			var spanfactor = targetspan/22.5;
 	
-			if(Math.abs(targetspan) < 3)
-				this.delta.r = 0;
-			else
-				this.delta.r -= spanfactor;
+			if(this.target.type != "attack")
+			{
+				if(Math.abs(targetspan) < 3)
+					this.delta.r = 0;
+				else
+					this.delta.r -= spanfactor;
+			}
 
-			if(Math.abs(targetspan) < 45 && velocity < this.hull.speed)
-				this.thrust = clip(targetdistance/2.5,0.1,1);
+			if(this.target.type != "attack")
+			{
+				if(Math.abs(targetspan) < 45 && velocity < this.hull.speed)
+					this.thrust = clip(targetdistance/2.5,0.1,1);
+			}
+			else
+			{
+				if(Math.abs(targetspan)>150)
+					this.thrust = clip(-targetdistance/2.5,0.1,1);
+				else
+					this.thrust = clip(targetdistance/2.5,0.1,1);
+			}
 		}
 		else
 		{
@@ -255,13 +282,13 @@ function ship(type,faction)
 			{
 
 				if(parseInt(Math.random()*100) == 34)
-					this.target.attack.d = parseInt(Math.random()*3-1.5);				
-				
-				var point = rotatePoints(0,-1,ai[this.target.attack.id].rot+45*this.target.attack.d)
+					this.target.attack.d = Math.random()*4-2;
+			
+				var point = rotatePoints(0,-this.range*0.7,ai[this.target.attack.id].rot+45*this.target.attack.d)
 				this.target.move.x = ai[this.target.attack.id].pos.x+point.x;
 				this.target.move.y = ai[this.target.attack.id].pos.y+point.y;
 
-				targetdistance = distance(this.pos,ai[this.target.attack.id].pos)
+				targetdistance = distance(this.pos,ai[this.target.attack.id].pos);
 
 				//Correct for distance
 				var target = {x:0,y:0};
@@ -271,18 +298,23 @@ function ship(type,faction)
 				targetangle = angle(this.pos,target);
 				targetspan = short_angle(this.rot,targetangle);
 
+				var spanfactor = targetspan/22.5;
+				if(Math.abs(targetspan) < 3)
+				{
+					this.delta.r = 0;
+					this.rot = targetangle;
+				}
+				else
+					this.delta.r -= spanfactor;
+
 				if(Math.abs(targetspan) < 19)
 				{
-					if(targetdistance < 3)
+					if(targetdistance < this.range)
 					{
 						for(var i in this.hardpoint)
 							this.hardpoint[i].fire();
 					}
 				}
-
-				spanfactor = targetspan / 5 * this.hull.mass;
-				if(Math.abs(targetspan) > 4)
-					this.rot -= spanfactor;
 
 			}
 			else
@@ -349,6 +381,7 @@ function ship(type,faction)
 			drawRotatedImage(this.sprite.moving, screencoord.x, screencoord.y, this.rot-90,1)
 		else
 			drawRotatedImage(this.sprite.still, screencoord.x, screencoord.y, this.rot-90,1)
+
 
 		if(this.hit(world.cursor))
 		{
