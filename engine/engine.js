@@ -8,7 +8,7 @@
 	var buffer;
 	var overlay;
 
-	var screen = {width:0,height:0,key:[]};
+	var screen = {width:0,height:0,key:[],mouse:[]};
 	var world = {width:0,height:0,grid:64,
 					cursor:{x:0,y:0},
 					size:{x:0,y:0},
@@ -35,6 +35,14 @@
 		return output = {
 					x: (vec2.x+world.offset.x) * world.grid,
 					y: (vec2.y+world.offset.y) * world.grid
+				 };
+	}
+
+	world.fromscreen = function(vec2)
+	{
+		return output = {
+					x: (vec2.x/world.grid)-world.offset.x,
+					y: (vec2.y/world.grid)-world.offset.y
 				 };
 	}
 

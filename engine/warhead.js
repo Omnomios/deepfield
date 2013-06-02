@@ -20,6 +20,11 @@ function warhead(type)
 				this.sprite = sprite.warhead.bullet;
 			break;
 
+			case "pulse laser":
+				this.stat = {ammo:20,power:{shield:25,hull:50},speed:9,life:1, delay:0.8, mass:0.1,mode:"projectile",explosive:false};
+				this.sprite = sprite.warhead.blaster;
+			break;
+
 			case "med rocket":
 				this.stat = {ammo:40,power:{shield:30,hull:100},speed:2,life:6, delay:3, mass:10, mode:"guided",explosive:true};
 				this.sprite = sprite.warhead.rocket;
@@ -77,7 +82,7 @@ function warhead(type)
 	{
 		var fx = new effect(anim.sm_smoke_hot);
 		fx.pos = this.pos;
-		var offs = rotatePoints(0, -(this.stat.speed*0.1), this.rot);
+		var offs = rotatePoints(0, -(this.stat.speed*0.01), this.rot);
 		fx.delta.x = offs.x;
 		fx.delta.y = offs.y;
 		fx.scale = 0.4;
@@ -91,11 +96,11 @@ function warhead(type)
 		{
 			var fx = new effect(anim.shockwave);
 			fx.pos = this.pos;
-			fx.scale = 1*this.scale;
+			fx.scale = 1.5*this.scale;
 
-			var ffx = new effect(anim.explode);
+			var ffx = new effect(anim.fire);
 			ffx.pos = this.pos;
-			ffx.scale = 0.5*this.scale;
+			ffx.scale = 0.8*this.scale;
 		}
 		
 		delete warheads[this.id];
@@ -167,11 +172,22 @@ function warhead(type)
 			{
 				for(var i in this.qt.list)
 				{
-					if(this.faction != ai[this.qt.list[i]].faction && this.ignore != this.qt.list[i] && ai[this.qt.list[i]].hit(this.pos))
+					if(this.faction != ai[this.qt.list[i]].faction && this.ignore != this.qt.list[i])
 					{
-						ai[this.qt.list[i]].impact(this);
-						this.destroy();
-						return;
+						var offs = rotatePoints(0, -(this.stat.speed*rtimer.delta), this.rot);
+
+						for(var l=0.0;l<1;l+=0.5)
+						{
+							var hitpoint = {x:lerp(this.pos.x-offs.x,this.pos.x,l),
+											y:lerp(this.pos.y-offs.y,this.pos.y,l)};
+							
+							if(ai[this.qt.list[i]].hit(hitpoint))
+							{
+								ai[this.qt.list[i]].impact(this);
+								this.destroy();
+								return;
+							}
+						}
 					}
 				}
 			}

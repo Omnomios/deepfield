@@ -152,12 +152,14 @@ function QuadTree(point1,point2,parent)
 	this.query = query;
 	function query(point,size)
 	{
-		rect = [{x:point.x-size,y:point.y-size},{x:point.x+size,y:point.y+size}];
+		if(size.x == undefined)
+			var rect = [{x:point.x-size,y:point.y-size},{x:point.x+size,y:point.y+size}];
+		else
+			var rect = [point,size];
 
 		//Check to see if it's within this branch.
 		if(!intersect(this.boundary,rect))
 			return [];
-
 
 		if(this.node.length>0)
 		{

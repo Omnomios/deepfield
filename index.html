@@ -22,7 +22,7 @@
 			{
 				position:absolute;			
 				color:#eee;
-				font-family:Courier New;
+				font-family:Helvetica;
 				padding: 10px;
 			}
 
@@ -36,6 +36,46 @@
 				user-select: none;
 				cursor:default;
 			}
+
+			.unitmenu
+			{
+				width: 192px;
+				position: absolute;
+				border-radius: 5px;
+				border: 2px solid #217887;
+				box-shadow: 0px 0px 10px 7px rgba(0,0,0,0.5);
+				background-color: rgba(0,0,0,0.6);
+			}
+
+			.unitmenu .head
+			{
+				padding:5px;
+				color: #aaa;
+			}
+
+			.unitmenu .controls
+			{
+
+			}
+
+			.unitmenu .controls ul
+			{
+				list-style-type: none;
+			}
+
+			.unitmenu .controls li
+			{
+				float:left;
+				width: 48px;
+				height: 48px;
+			}
+
+			.unitmenu .controls li:hover
+			{
+				background-color: rgba(255,255,255,0.3);
+			}
+
+
 		</style>
 	
 	
@@ -51,6 +91,7 @@
 
 		$(document).ready(function(){
 
+			/*
 			for(var i=0;i<2;i++)
 			{
 				light = new ship("light",1);
@@ -58,15 +99,22 @@
 				light.pos.y = 2+(Math.random()*4-2);
 				light.rot = Math.random()*360;
 			}
+			*/
+
+			var mothership1 = new ship("mothership",10);
+			mothership1.pos.x = -25;
+			mothership1.pos.y = -25;
+			mothership1.rot = Math.random()*360;
+			mothership1.target.move.x=-20;
+			mothership1.target.move.y=-20;
 
 
-			for(var i=0;i<2;i++)
-			{
-				light = new ship("light",3);
-				light.pos.x = -2+(Math.random()*4-2);
-				light.pos.y = -2+(Math.random()*4-2);
-				light.rot = Math.random()*360;
-			}
+			var mothership2 = new ship("mothership",11);
+			mothership2.pos.x = 25;
+			mothership2.pos.y = 25;
+			mothership2.rot = Math.random()*360;
+			mothership2.target.move.x=20;
+			mothership2.target.move.y=20;
 
 
 		});

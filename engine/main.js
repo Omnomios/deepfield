@@ -79,4 +79,44 @@ $(document).ready(function()
 		}
 	},500);
 
+
+	
+	
+	$("#backbuffer").mousemove(function(event)
+	{
+		var rect = canvas.getBoundingClientRect();
+		screen.cursor.x = event.clientX - rect.left;
+		screen.cursor.y = event.clientY - rect.top;
+		world.cursor.x = (screen.cursor.x/world.grid)-world.offset.x;
+		world.cursor.y = (screen.cursor.y/world.grid)-world.offset.y;
+	});
+
+	$("#backbuffer").mousedown(function(event)
+	{
+		event.preventDefault();
+		screen.mouse[0] = true;
+		interface.mousedown(event);
+	});
+
+	$("#backbuffer").mouseup(function(event)
+	{
+		event.preventDefault();
+		screen.mouse[0] = false;
+		interface.mouseup(event);
+	});
+
+	$(document).keydown(function(event){
+		event.preventDefault();
+		screen.key[event.keyCode]=true;
+		interface.keydown(event);
+	});
+
+	$(document).keyup(function(event){
+		event.preventDefault();
+		screen.key[event.keyCode]=false;
+		interface.keyup(event);
+		return false;
+	});
+
+
 });

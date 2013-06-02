@@ -18,10 +18,17 @@ function effect(type)
 
 		this.sprite = [];
 		
+		var width = type.asset.width/type.key.w;
+		
+
 		for(var i=0; i<type.count;i++)
-		{
-			var keyframe = {x:type.key.x+type.key.w*i,
-							y:type.key.y,
+		{	
+			var y = Math.floor((type.key.w*i) / type.asset.width);
+			var x = i - y*width;
+
+
+			var keyframe = {x:type.key.x+type.key.w*x,
+							y:type.key.y+type.key.h*y,
 							w:type.key.w,
 							h:type.key.h,
 							asset: type.asset};
