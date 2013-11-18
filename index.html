@@ -1,29 +1,23 @@
 <html>
 	<head>
 		<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-		<script src="assets/assets.js"></script>
-		<script src="engine/math.js"></script>
-		<script src="engine/quadtree.js"></script>
-		<script src="engine/tileset.js"></script>
-		<script src="engine/engine.js"></script>
-		<script src="engine/hardpoint.js"></script>
-		<script src="engine/warhead.js"></script>
-		<script src="engine/effects.js"></script>
-		<script src="engine/ship.js"></script>
-		<script src="interface.js"></script>
-		<script src="engine/main.js"></script>
+		<script data-main="client" src="require.js"></script>
+
+		<link href="//fonts.googleapis.com/css?family=Electrolize" rel="stylesheet" type="text/css">
 
 		<style>
 			* { margin:0; padding:0; } /* to remove the top and left whitespace */
 			html, body { width:100%; height:100%; } /* just to be sure these are full screen*/
 			canvas { display:block; } /* To remove the scrollbars */
 			#backbuffer {width:100%;height:100%;}
+
 			#overlay
 			{
-				position:absolute;			
+				position:absolute;
 				color:#eee;
-				font-family:Helvetica;
-				padding: 10px;
+				font-family: 'Electrolize';
+				width:100%;
+				height: 100%;
 			}
 
 			.disable_select
@@ -37,90 +31,189 @@
 				cursor:default;
 			}
 
-			.unitmenu
-			{
-				width: 192px;
-				position: absolute;
-				border-radius: 5px;
-				border: 2px solid #217887;
-				box-shadow: 0px 0px 10px 7px rgba(0,0,0,0.5);
-				background-color: rgba(0,0,0,0.6);
+			@keyframes fadein {
+			  from {
+					opacity: 0;
+			  }
+			  to {
+					opacity: 1;
+				}
 			}
 
-			.unitmenu .head
+			#minimap
 			{
-				padding:5px;
-				color: #aaa;
+				margin: 16px auto;
+				border: 1px solid #444;
 			}
 
-			.unitmenu .controls
+			div.menu
 			{
+				height: 32px;
+				background-color: #000C0D;
+				box-shadow: inset 0 0 1px #00E7FF;
+				color: #00E7FF;
+				text-shadow: 0 0 20px #0099FF;
+				width:100%;
 
+				font-family: 'Electrolize';
+				font-size: 24px;
+				font-weight: normal;
 			}
 
-			.unitmenu .controls ul
+			div.dialog
+			{
+				margin: 16px auto;
+				height: 50%;
+				width: 25%;
+				background-color: #000C0D;
+				box-shadow: inset 0 0 1px #00E7FF;
+				color: #00E7FF;
+				text-shadow: 0 0 20px #0099FF;
+
+				font-family: 'Electrolize';
+				font-size: 24px;
+				font-weight: normal;
+			}
+
+			div.dialog h3,
+			div.dialog p
+			{
+				text-align: center;
+			}
+
+			div.menu.main,
+			div.menu.units,
+			div.menu.orders,
+			div.menu.system
+			{
+				display: none;
+			}
+
+			div.menu.units,
+			div.menu.orders
+			{
+				height: 48px;
+				display: none;
+			}
+
+
+			div.menu ul,
+			div.menu li
 			{
 				list-style-type: none;
 			}
 
-			.unitmenu .controls li
+			div.menu li
 			{
 				float:left;
-				width: 48px;
-				height: 48px;
+				padding: 0 20px;
+				line-height: 32px;
+				cursor: pointer;
 			}
 
-			.unitmenu .controls li:hover
+			div.menu li:hover,
+			div.menu li.active
 			{
-				background-color: rgba(255,255,255,0.3);
+				color: #4AEEFF;
+				box-shadow: inset 0 0 7px #00E7FF;
 			}
+
+			div.menu.units li,
+			div.menu.orders li
+			{
+				height: 19px;
+				width: 48px;
+				padding: 29px 0 0 0;
+				line-height: 8px;
+				font-size: 8px;
+				text-align: center;
+			}
+
+			div.menu.system li
+			{
+				line-height: 32px;
+				font-size: 12px;
+				text-align: center;
+			}
+
 
 
 		</style>
-	
-	
+
+
 	</head>
 
 	<body style="background-color:#777;">
 
-		<div style="position:relative; z-index:10;" class="disable_select"><div id="overlay"></div></div>
+		<div style="position:relative; z-index:10;" class="disable_select">
+			<div id="overlay">
+
+				<div class="menu main">
+					<ul>
+						<li class='menutab' data-item='units'>Units</li>
+						<li class='menutab' data-item='orders'>Orders</li>
+						<li class='menutab' data-item='system' style="float:right;">System</li>
+					</ul>
+					<div style='clear:both;'></div>
+				</div>
+
+				<div class="menu units tabmenu">
+					<ul id="unitmenu">
+					</ul>
+					<div style='clear:both;'></div>
+				</div>
+
+				<div class="menu orders tabmenu">
+					<ul id="ordermenu">
+					</ul>
+					<div style='clear:both;'></div>
+				</div>
+
+				<div class="menu system tabmenu">
+					<ul id="systemmenu">
+						<li id="hostname"></li>
+						<li id="latency"></li>
+					</ul>
+					<div style='clear:both;'></div>
+				</div>
+
+				<div class="dialog">
+					<h3 class='title'>Please Wait</h3>
+					<p class='detail'></p>
+					<div style='clear:both;'></div>
+				</div>
+
+				<canvas  id="minimap" style="background-color:#000; display:none;" ></canvas>
+				<!--
+				<div class="unitmenu">
+
+					<div class="head">
+						<div class="info"></div>
+						<div class="units">
+							<h3>Selected</h3>
+							<ul></ul>
+						</div>
+						<div style="clear:both;"></div>
+
+						<div class="controls">
+							<h3>Orders</h3>
+							<ul></ul>
+						</div>
+						<div style="clear:both;"></div>
+
+						<div class="cargo">
+							<h3>Cargo</h3>
+							<ul></ul>
+						</div>
+						<div style="clear:both;"></div>
+
+					</div>
+				</div>
+				-->
+			</div>
+		</div>
+
 		<canvas  id="backbuffer" style="position:relative; z-index:1; background-color:#111;"></canvas>
-
-	<script type="text/javascript">
-		var queries = 0;
-
-		$(document).ready(function(){
-
-			/*
-			for(var i=0;i<2;i++)
-			{
-				light = new ship("light",1);
-				light.pos.x = 2+(Math.random()*4-2);
-				light.pos.y = 2+(Math.random()*4-2);
-				light.rot = Math.random()*360;
-			}
-			*/
-
-			var mothership1 = new ship("mothership",10);
-			mothership1.pos.x = -25;
-			mothership1.pos.y = -25;
-			mothership1.rot = Math.random()*360;
-			mothership1.target.move.x=-20;
-			mothership1.target.move.y=-20;
-
-
-			var mothership2 = new ship("mothership",11);
-			mothership2.pos.x = 25;
-			mothership2.pos.y = 25;
-			mothership2.rot = Math.random()*360;
-			mothership2.target.move.x=20;
-			mothership2.target.move.y=20;
-
-
-		});
-
-
-	</script>
 
 	</body>
 </html>

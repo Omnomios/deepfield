@@ -1,85 +1,79 @@
-var img_ship = new Image();
-img_ship.src = "assets/space-ships.png";
+var asset = {};
+$.ajax({
+	url: 'core/asset.ajax.php',
+	type: 'GET',
+	data: {item:'asset',action:'object'},
+	dataType: 'json',
+	async: false,
+	}).done(function(response) {
+		for(item in response)
+		{
+			response[item].image = new Image();
+			response[item].image.src = response[item].path;
 
-function alphamap(img)
-{
-	this.workcanvas = document.createElement("canvas");
-	this.workcanvas.width = img.width;
-	this.workcanvas.height = img.height;
-	this.workcontext = this.workcanvas.getContext("2d");
-	this.workcontext.drawImage(img, 0, 0);
-	this.imgData = this.workcontext.getImageData(0, 0, img.width, img.height);
+			console.log(response[item].path);
 
-	this.getpoint = getpoint
-	function getpoint(point)
-	{
-		var seq = 4*(Math.round(point.y) * this.imgData.width + Math.round(point.x));
-		return  this.imgData.data[seq+3];
-	}
+			//Syncro image loading.
+			var timer = new Date();
+			var timeout = timer.getTime();
+			while(!response[item].image.complete)
+			{
+				//console.log(response[item].path,response[item].image.complete);
+				timer = new Date();
+				if(timeout < timer.getTime()-1000) break;
+			}
+			response[item].alphamap = new alphamap(response[item].image);
+		}
+		asset = response;
+	});
 
-	return this;
-}
-var img_ship_alpha = new alphamap(img_ship);
-
-
-var img_effect = new Image();
-img_effect.src = "assets/effects.png";
-
-var sheet_smoke = new Image();
-sheet_smoke.src = "assets/smoke_1_40_128.png";
-
-var sheet_fire = new Image();
-sheet_fire.src = "assets/fire_3_39_128.png";
-
-var sheet_explo = new Image();
-sheet_explo.src = "assets/explosion_5_38_128.png";
 
 var sprite = {rocket_ship:{
 							still:{ x:146,
 									y:0,
 									w:37,
 									h:20,
-									asset: img_ship},
+									asset: asset.dev_space_ships},
 							moving:{x:146,
 									y:20,
 									w:37,
 									h:20,
-									asset: img_ship}
+									asset: asset.dev_space_ships}
 					},
 			fighter:{
 							still:{ x:0,
 									y:0,
 									w:20,
 									h:20,
-									asset: img_ship},
+									asset: asset.dev_space_ships},
 							moving:{x:0,
 									y:20,
 									w:20,
 									h:20,
-									asset: img_ship}
+									asset: asset.dev_space_ships}
 					},
 			mothership:{
 							still:{ x:216,
 									y:3,
 									w:82,
 									h:54,
-									asset: img_ship},
+									asset: asset.dev_space_ships},
 							moving:{x:216,
 									y:3,
 									w:82,
 									h:54,
-									asset: img_ship},
+									asset: asset.dev_space_ships},
 							turret:{
 									still:{ x:104,
 											y:8,
 											w:11,
 											h:4,
-											asset: img_ship},
+											asset: asset.dev_space_ships},
 									fire:{  x:92,
 											y:28,
 											w:35,
 											h:4,
-											asset: img_ship}
+											asset: asset.dev_space_ships}
 									}
 					},
 			warhead:{
@@ -88,23 +82,31 @@ var sprite = {rocket_ship:{
 										y:2,
 										w:5,
 										h:1,
-										asset: img_ship}
-								
+										asset: asset.dev_space_ships}
+
 									},
 							blaster:{
 								moving:{x:185,
 										y:14,
 										w:17,
 										h:5,
-										asset: img_ship}
-								
+										asset: asset.dev_space_ships}
+
+									},
+							repair:{
+								moving:{x:185,
+										y:20,
+										w:13,
+										h:12,
+										asset: asset.dev_space_ships}
+
 									},
 							rocket:{
 								moving:{x:184,
 										y:8,
 										w:11,
 										h:4,
-										asset: img_ship}								
+										asset: asset.dev_space_ships}
 									}
 					}
 			  };
@@ -116,7 +118,7 @@ var anim = {pop:{
 							h:38},
 					count: 22,
 					fps: 24,
-					asset: img_effect},
+					asset: asset.effects},
 			  explode:{
 					key:{   x:0,
 							y:71,
@@ -124,7 +126,7 @@ var anim = {pop:{
 							h:42},
 					count: 7,
 					fps: 24,
-					asset: img_effect},
+					asset: asset.effects},
 			  sm_smoke:{
 					key:{   x:0,
 							y:37,
@@ -132,7 +134,7 @@ var anim = {pop:{
 							h:14},
 					count: 6,
 					fps: 10,
-					asset: img_effect},
+					asset: asset.effects},
 			  sm_smoke_hot:{
 					key:{   x:0,
 							y:52,
@@ -140,7 +142,7 @@ var anim = {pop:{
 							h:16},
 					count: 6,
 					fps: 15,
-					asset: img_effect},
+					asset: asset.effects},
 			  shield_20:{
 					key:{   x:112,
 							y:42,
@@ -148,7 +150,23 @@ var anim = {pop:{
 							h:21},
 					count: 5,
 					fps: 28,
-					asset: img_effect},
+					asset: asset.effects},
+			  shield_64:{
+					key:{   x:452,
+							y:37,
+							w:63,
+							h:63},
+					count: 5,
+					fps: 28,
+					asset: asset.effects},
+			  repair:{
+					key:{   x:479,
+							y:123,
+							w:10,
+							h:8},
+					count: 5,
+					fps: 28,
+					asset: asset.effects},
 			  shockwave:{
 					key:{   x:10,
 							y:119,
@@ -156,7 +174,7 @@ var anim = {pop:{
 							h:33},
 					count: 5,
 					fps: 28,
-					asset: img_effect},
+					asset: asset.effects},
 			  smoke:{
 					key:{   x:0,
 							y:0,
@@ -164,7 +182,7 @@ var anim = {pop:{
 							h:128},
 					count: 40,
 					fps: 20,
-					asset: sheet_smoke},
+					asset: asset.smoke_1_40_128},
 			  fire:{
 					key:{   x:0,
 							y:0,
@@ -172,7 +190,7 @@ var anim = {pop:{
 							h:128},
 					count: 39,
 					fps: 30,
-					asset: sheet_fire},
+					asset: asset.fire_3_39_128},
 			  explosion:{
 					key:{   x:0,
 							y:0,
@@ -180,5 +198,5 @@ var anim = {pop:{
 							h:128},
 					count: 38,
 					fps: 30,
-					asset: sheet_explo}
+					asset: asset.explosion_5_38_128}
 			  };
