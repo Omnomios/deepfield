@@ -48,6 +48,12 @@ define(['GameUnit'],function(GameUnit)
 				return;
 			},
 
+			scrub:function(parms)
+			{
+				global.GameState.unit = [];
+				Network.sync();
+			},
+
 			spawn:function(parms)
 			{
 				var parm = parms.split(" ");

@@ -94,18 +94,16 @@ define(function()
 						global.maintimer.server(time-Network.latency);
 					break;
 
-					case "hold":
-						global.GameState.hold=true;
-						Network.send(JSON.stringify({action:'held'}));
-					break;
-
-					case "release":
-						global.GameState.hold=false;
-						Network.send(JSON.stringify({action:'released'}));
-					break;
-
 					case "order":
 						global.GameState.unit[parseInt(data.id)].order(data.type, data.coord, global.maintimer.tick);
+					break;
+
+					case "presync":
+						$("div.dialog").fadeIn("slow");
+						$("div.dialog p.detail").html("Waiting for sync");
+						console.log("Waiting for sync");
+						global.end_simulation();
+						Network.send(JSON.stringify({action:'held'}));
 					break;
 
 					case "sync":
@@ -113,6 +111,7 @@ define(function()
 						global.GameState.set(data.sync.state);
 						global.world.set(data.sync.world);
 						global.begin_simulation();
+						Network.send(JSON.stringify({action:'released'}));
 					break;
 				}
 			}
@@ -126,6 +125,7 @@ define(function()
 	{
 		connection:{socket:[],index:0},
 		port: 8080,
+		callback:{},
 
 		broadcast : function broadcast(message)
 		{
@@ -180,6 +180,25 @@ define(function()
 			return true;
 		},
 
+		sync: function sync()
+		{
+			this.broadcast(JSON.stringify({action:'presync'}));
+			Network.callback.held = function(){
+
+				for(var i in Network.connection.socket)
+					if(Network.connection.socket[i] != undefined && !Network.connection.socket[i].hold) return;
+
+				delete Network.callback.held;
+				console.log("Syncing players.");
+				var packet = {action:"sync",sync:{state:GameState.get(), world:world.get()},stamp:Date.now()+2000};
+				var timepack = {action:'time',stamp:Date.now()};
+
+				Network.broadcast(JSON.stringify(timepack));
+				Network.broadcast(JSON.stringify(packet));
+				console.log("Done.");
+			};
+		},
+
 		init: function init()
 		{
 			this.WebSocketServer = require('ws').Server
@@ -209,15 +228,14 @@ define(function()
 						case "sync":
 							console.log("Syncing player",this.index);
 							var packet = {action:"sync",sync:{state:GameState.get(), world:world.get()}};
-
 							Network.send(JSON.stringify({action:'time',stamp:Date.now()}),this.index);
-
 							Network.send(JSON.stringify(packet),this.index);
-
 						break;
 
 						case "held":
 							this.hold = true;
+							if(typeof Network.callback.held === "function")
+								Network.callback.held(this);
 						break;
 
 						case "released":

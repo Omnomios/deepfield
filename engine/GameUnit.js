@@ -230,7 +230,7 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 
 					if(stamp != undefined)
 						this.target.stamp = stamp;
-					
+
 					this.update();
 				break;
 
@@ -241,7 +241,7 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 
 				case "build":
 					this.build.push({unit:data,stamp:stamp});
-					
+
 					this.update();
 				break;
 			}
@@ -274,7 +274,7 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 					if(!this.validtarget) this.target.type = "";
 					var target = global.GameState.unit[this.target.attack.id];
 
-					if(target!= null && target != undefined && ExtraMath.distance(this.pos,target.pos)> this.range || ExtraMath.distance(this.pos,this.target.move) > this.range/2)
+					if(target!= null && target != undefined && target.pos != undefined && ExtraMath.distance(this.pos,target.pos)> this.range || ExtraMath.distance(this.pos,this.target.move) > this.range/2)
 					{
 						this.target.attack.d = 10;
 						var targetangle = ExtraMath.angle(this.pos,target.pos);
@@ -330,7 +330,7 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 		update: function update()
 		{
 			if(typeof global.Network.broadcast != "function") return false;
-			global.Network.broadcast(JSON.stringify({action:'update',delta:global.maintimer.delta,unit:this.get()}));		
+			global.Network.broadcast(JSON.stringify({action:'update',delta:global.maintimer.delta,unit:this.get()}));
 		},
 
 		validtarget : function validtarget()
@@ -421,7 +421,7 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 			var acc = (this.hull.power/this.hull.mass)/(this.hull.speed*0.25);
 			this.delta.r += ((TurnDirection * (45*this.hull.speed)) - this.delta.r) * acc;
 			this.thrust  += ((MoveDirection * this.hull.speed) - this.thrust) * acc;
-			
+
 			//Time to build!
 			if(this.build.length > 0 && global.server)
 			{

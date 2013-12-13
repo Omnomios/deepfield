@@ -116,5 +116,4 @@ require(['ExtraMath','GameUnit','QuadTree','Timer','Tileset','GameState','Screen
 
 	$("div.dialog p.detail").html("Connecting to server.");
 	Network.connect("forseti.twosphere.net.au",8080);
-
 });
