@@ -18,16 +18,14 @@ return {
 
 		active:false,
 
-		coord: function(vec2)
-		{
-			return output = {
-						x: (vec2.x+world.offset.x) * world.grid,
-						y: (vec2.y+world.offset.y) * world.grid
-					 };
+		coord: function(vec2) {
+			return {
+				x: (vec2.x+world.offset.x) * world.grid,
+				y: (vec2.y+world.offset.y) * world.grid
+			};
 		},
 
-		drawSprite: function(spriteref, x, y, angle, scale)
-		{
+		drawSprite: function(spriteref, x, y, angle, scale) {
 			if(typeof spriteref == "undefined" || typeof spriteref.frame != "function" ) return;
 			if(!this.active) return;
 			if(scale <= 0) return;
@@ -52,13 +50,14 @@ return {
 			surface.buffer.rotate(angle * TO_RADIANS);
 
 			if(typeof (frame = spriteref.frame()) != "undefined")
+			{
 				surface.buffer.drawImage(spriteref.image(), frame.x, frame.y, frame.w, frame.h, -(frame.w/2), -(frame.h/2), frame.w, frame.h);
+			}
 
 			surface.buffer.restore();
 		},
 
-		resize: function()
-		{
+		resize: function() {
 			surface.canvas.width = window.innerWidth;
 			surface.canvas.height = window.innerHeight;
 
@@ -69,13 +68,11 @@ return {
 			world.view.y = surface.height/world.grid;
 		},
 
-		clear: function()
-		{
+		clear: function() {
 			this.buffer.clearRect(0,0,this.width,this.height);
 		},
 
-		init: function()
-		{
+		init: function() {
 			this.active = false;
 
 			this.canvas = document.getElementById('backbuffer');
@@ -94,5 +91,5 @@ return {
 
 			return;
 		}
-	}
+	};
 });

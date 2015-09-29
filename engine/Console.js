@@ -79,7 +79,6 @@ define(['GameUnit'],function(GameUnit)
 
 	};
 
-	if(global.Console == undefined) global.Console = Console_object;
+	if(typeof global.Console == "undefined") global.Console = Console_object;
 	return global.Console;
 });
-

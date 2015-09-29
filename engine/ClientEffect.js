@@ -20,7 +20,12 @@ define(['GameSprite','GameState'],function(GameSprite, GameState)
 		init : function init(type)
 		{
 			var timer = new Date();
-			this.sprite = type;
+
+			if(typeof type === "string")
+				this.sprite = new GameSprite(type);
+
+			if(typeof type === "object")
+				this.sprite = type;
 
 			this.fps = this.sprite.fps;
 			this.count = this.sprite.frames.length;
@@ -56,7 +61,7 @@ define(['GameSprite','GameState'],function(GameSprite, GameState)
 			}
 			surface.drawSprite(this.sprite, screencoord.x, screencoord.y, this.rot,this.scale);
 		}
-	}
+	};
 
 	return ClientEffect;
 

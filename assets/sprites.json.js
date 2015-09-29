@@ -47,6 +47,10 @@ define(function(){
 
 		"smoke":{ "frames":[{"type":"sequence","x":0,"y":0, "w":128, "h":128,"count": 40, "fps": 20, "asset": "smoke_1_40_128"}]},
 
+		"detonate1":{ "frames":[{"type":"sequence","x":0,"y":0, "w":32, "h":32,"count": 29, "fps": 30, "asset": "detonation1"}]},
+
+		"detonate2":{ "frames":[{"type":"sequence","x":0,"y":0, "w":32, "h":32,"count": 48, "fps": 30, "asset": "detonation2"}]},
+
 		"fire":{ "frames":[{"type":"sequence","x":0,"y":0,"w":128,"h":128,"count": 39,"fps": 30,"asset": "fire_3_39_128"}] },
 
 		"explosion":{ "frames":[{"type":"sequence", "x":0, "y":0, "w":128, "h":128, "count": 38, "fps": 30, "asset": "explosion_5_38_128"}] }

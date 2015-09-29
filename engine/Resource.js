@@ -17,7 +17,7 @@ define(function(){
 					global.Resources[input] = eval("(function() {"+data+"}())");
 				}
 			});
-		};
+		}
 
 		console.log("Resource:",input);
 

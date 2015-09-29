@@ -1,0 +1,15 @@
+{
+    "name": "deepfield",
+    "version": "0.1.0",
+    "description": "",
+    "author": "Stefan Kent <skent@twosphere.com.au>",
+    "main": "server.js",
+    "dependencies": {
+        "amdefine": "*",
+        "canvas": "*",
+        "jquery": "*",
+        "png-js": "*",
+        "requirejs": "*",
+        "ws": "*"
+    }
+}

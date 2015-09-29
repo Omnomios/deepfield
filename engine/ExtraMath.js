@@ -97,9 +97,8 @@ define(function(){
 			if(intersect(rect2,rect1)) return true;
 			return false;
 		}
-	}
+	};
 
 	var nope='';
 	return ExtraMath;
-
 });

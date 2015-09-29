@@ -13,38 +13,31 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 		this.offset 	= {x:0,y:0, delta:{x:0,y:0}};
 
 		this.testsprite = new GameSprite(Resource("../assets/asteroid.json"));
-
 	}
 
 	World.prototype = {
 
-		set_size : function set_size(size)
-		{
+		set_size : function set_size(size) {
 			this.size = size;
 
-			for(var tx=0;tx<=this.size.x;tx++)
-			{
+			for(var tx=0;tx<=this.size.x;tx++) {
 				this.data[tx] = Array(this.size.y);
 			}
 		},
 
-		generate : function generate()
-		{
+		generate : function generate() {
 			var world = this;
 
-			function cluster(x,y)
-			{
+			function cluster(x,y) {
 				minor(x,y,9);
 
-				for(var a=0;a<9;a++)
-				{
+				for(var a=0;a<9;a++) {
 					var offs = ExtraMath.rotatePoints(0,1+(Math.random()*2),Math.random()*360);
 					minor( x+offs.x, y+offs.y, a );
 				}
 			}
 
-			function minor(x,y,asize)
-			{
+			function minor(x,y,asize) {
 				if(typeof asize === "undefined") return;
 
 				if(typeof world.data[Math.floor(x)][Math.floor(y)] === "undefined")
@@ -60,24 +53,21 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 						});
 			}
 
-			for(var i=0;i<5;i++)
-			{
+			for(var i=0;i<5;i++) {
 				cluster(5+(Math.random()*(this.size.x-10)),5+(Math.random()*(this.size.y-10)));
 			}
 
 		},
 
 
-		coord : function coord(vec2)
-		{
-			return output = {
-						x: (vec2.x/this.grid)-this.offset.x,
-						y: (vec2.y/this.grid)-this.offset.y
-					 };
+		coord : function coord(vec2) {
+			return {
+				x: (vec2.x/this.grid)-this.offset.x,
+				y: (vec2.y/this.grid)-this.offset.y
+			};
 		},
 
-		load: function load(sector)
-		{
+		load: function load(sector) {
 			this.sector = sector;
 			this.size.x = 128;
 			this.size.y = 128;
@@ -86,19 +76,12 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 			var zlib = require('zlib');
 			var fs = require('fs');
 			fs.readFile("assets/sectors/world."+this.sector.x+"."+this.sector.y+".json",
-			function(err, data)
-			{
-				if(err)
-				{
+			function(err, data) {
+				if(err) {
 					console.log(err);
-				}
-				else
-				{
-
-					zlib.unzip(data, function(err, buffer)
-					{
-						if (!err)
-						{
+				} else {
+					zlib.unzip(data, function(err, buffer) {
+						if (!err) {
 							var worldpack = JSON.parse(buffer);
 							world.size = worldpack.sector.size;
 
@@ -106,9 +89,7 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 							world.set(worldpack.tileset);
 
 							console.log("Sector ", world.sector, "loaded.");
-						}
-						else
-						{
+						} else {
 							console.log(err);
 						}
 					});
@@ -116,8 +97,7 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 			});
 		},
 
-		save: function save()
-		{
+		save: function save() {
 			var world = this;
 
 			var worldpack =
@@ -133,41 +113,30 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 			var zlib = require('zlib');
 			var fs = require('fs');
 
-			zlib.deflate(JSON.stringify(worldpack), function(err, buffer)
-			{
-			  if (!err)
-			  {
-				fs.writeFile("assets/sectors/world."+world.sector.x+"."+world.sector.y+".json", buffer, function(err)
-				{
+			zlib.deflate(JSON.stringify(worldpack), function(err, buffer) {
+			  if (!err) {
+				fs.writeFile("assets/sectors/world."+world.sector.x+"."+world.sector.y+".json", buffer, function(err) {
 					if(err) console.log(err);
 				});
 			  }
 			});
 		},
 
-		get: function get()
-		{
+		get: function get() {
 			var output = {size: this.size, cells:[]};
-
-			for(var tx=0;tx<=this.size.x;tx++)
-			{
-				for(var ty=0;ty<=this.size.y;ty++)
-				{
-					if(typeof this.data[tx][ty] !== "undefined")
-					{
+			for(var tx=0;tx<=this.size.x;tx++) {
+				for(var ty=0;ty<=this.size.y;ty++) {
+					if(typeof this.data[tx][ty] !== "undefined") {
 						output.cells.push({loc:{x:tx,y:ty},data:this.data[tx][ty]});
 					}
 				}
 			}
-
 			return output;
 		},
 
-		set: function set(data)
-		{
+		set: function set(data) {
 			//world Gen
-			if(typeof data.size === "undefined")
-			{
+			if(typeof data.size === "undefined") {
 				this.set_size({x:128,y:128});
 				this.generate();
 
@@ -177,30 +146,23 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 
 			this.set_size(data.size);
 
-			for(i in data.cells)
-			{
-				var loc = data.cells[i].loc
+			for(var i in data.cells) {
+				var loc = data.cells[i].loc;
 				this.data[loc.x][loc.y] = data.cells[i].data;
 			}
 			this.rebuild_quadtree();
 
 		},
 
-		rebuild_quadtree: function rebuild_quadtree()
-		{
+		rebuild_quadtree: function rebuild_quadtree() {
 			this.quadtree = new QuadTree({x:-this.size.x,y:-this.size.y},{x:this.size.x,y:this.size.y});
 
-			for(var tx=0;tx<=this.size.x;tx++)
-			{
-				for(var ty=0;ty<=this.size.y;ty++)
-				{
-					if(typeof this.data[tx][ty] !== "undefined")
-					{
-						for(t in this.data[tx][ty].item)
-						{
+			for(var tx=0;tx<=this.size.x;tx++) {
+				for(var ty=0;ty<=this.size.y;ty++) {
+					if(typeof this.data[tx][ty] !== "undefined") {
+						for(var t in this.data[tx][ty].item) {
 							var item = this.data[tx][ty].item[t];
 							var xc = (this.size.x * ty) + tx;
-
 							if(!this.quadtree.insert({id:xc,type:"res",point:{x:tx+item.pos.x,y:ty+item.pos.y}})) console.log("Did not insert",item);
 						}
 					}
@@ -208,8 +170,7 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 			}
 		},
 
-		render: function render()
-		{
+		render: function render() {
 			this.offset.delta.x = ExtraMath.clip(this.offset.delta.x,-10,10);
 			this.offset.delta.y = ExtraMath.clip(this.offset.delta.y,-10,10);
 			this.offset.x += this.offset.delta.x*maintimer.delta;
@@ -235,8 +196,10 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 					var tbx = (tx+tox) * this.grid;
 					var tby = (ty+toy) * this.grid;
 
+					var tile = null;
+
 					if(typeof world.data[Math.floor(tmx*1)+this.size.x/2] !== "undefined")
-						var tile = world.data[Math.floor(tmx*1)+this.size.x/2][Math.floor(tmy*1)+this.size.y/2];
+						tile = world.data[Math.floor(tmx*1)+this.size.x/2][Math.floor(tmy*1)+this.size.y/2];
 
 					surface.buffer.lineWidth=1;
 
@@ -255,7 +218,7 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 						}
 					}
 
-					if(tmx+64==0 && tmy+64==0)
+					if(tmx+64 === 0 && tmy+64 === 0)
 						surface.buffer.strokeStyle="#F44";
 					else
 						surface.buffer.strokeStyle="#444";
@@ -269,8 +232,7 @@ define(['ExtraMath','GameState','GameSprite','Resource','QuadTree'],function(Ext
 				}
 
 		}
-	}
+	};
 
 	return World;
-
 });

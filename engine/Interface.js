@@ -4,13 +4,11 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 					selected:[],
 					group:[],
 					mousestart:{x:0,y:0},
-					mousedown:function(event)
-					{
+					mousedown:function(event) {
 						this.mousestart.x = surface.cursor.x;
 						this.mousestart.y = surface.cursor.y;
 					},
-					mouseup:function(event)
-					{
+					mouseup:function(event) {
 						//There was a drag
 						if(ExtraMath.distance(this.mousestart,surface.cursor) > 16)
 						{
@@ -24,9 +22,8 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 						this.updatemenu();
 
 					},
-					squad: function(id)
-					{
-						if(this.group[id] == undefined) this.group[id] = [];
+					squad: function(id) {
+						if(typeof this.group[id] == "undefined") this.group[id] = [];
 
 						if(this.selected_group == id && this.selected.length == this.group[id].length && this.selected != [])
 						{
@@ -43,8 +40,7 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 
 						this.updatemenu();
 					},
-					keydown:function(event)
-					{
+					keydown:function(event) {
 						if(surface.key[27])
 							this.selected = [];
 
@@ -59,12 +55,10 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 						if(surface.key[56]) this.squad(8);
 						if(surface.key[57]) this.squad(9);
 					},
-					keyup:function(event)
-					{
+					keyup:function(event) {
 					},
 
-					selectbox:function()
-					{
+					selectbox:function() {
 						if(!surface.key[16])
 							this.selected = [];
 
@@ -76,7 +70,7 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 
 						var ailist = quadtree.query(rect[0],rect[1]);
 
-						if(ailist.length == 0) return;
+						if(ailist.length === 0) return;
 						for(var i in ailist)
 						{
 							if(ExtraMath.hitrect(rect,GameState.unit[ailist[i].id].pos))
@@ -88,10 +82,9 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 						this.updatemenu();
 					},
 
-					selectpoint: function()
-					{
+					selectpoint: function() {
 						var ailist = quadtree.query(world.cursor,1);
-						if(ailist.length == 0) return;
+						if(ailist.length === 0) return;
 						for(var i in ailist)
 						{
 							if(GameState.unit[ailist[i].id].hit(world.cursor))
@@ -107,13 +100,10 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 						return false;
 					},
 
-					moveorder: function()
-					{
+					moveorder: function() {
 						units = this.selected.length;
-						if(units > 0)
-						{
-							if(GameState.unit[this.selected[0]] != null)
-							{
+						if(units > 0) {
+							if(GameState.unit[this.selected[0]] !== null) {
 								var packet = {action:'order',type:'move',id:0,data:{x:0,y:0}};
 
 								packet.id = this.selected[0];
@@ -146,16 +136,15 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 						}
 					},
 
-					unitorder: function(id,order,data)
-					{
+					unitorder: function(id,order,data) {
 						var packet = {action:'order',type:order,data:data,id:id};
 						Network.send(JSON.stringify(packet));
 					},
 
-					updatemenu: function()
-					{
-						if(GameState.unit[this.selected[0]] != undefined)
-							var unit = GameState.unit[this.selected[0]];
+					updatemenu: function() {
+						var unit;
+						if(typeof GameState.unit[this.selected[0]] != "undefined")
+							unit = GameState.unit[this.selected[0]];
 
 						var unitmenu = surface.overlay.find("#unitmenu");
 						var ordermenu = surface.overlay.find("#ordermenu");
@@ -172,25 +161,22 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 						ordermenu.empty();
 						cargomenu.empty();
 
-						if(unit == undefined) return;
+						if(typeof unit == "undefined") return;
 
-						var unitgroups = new Array();
-						for(var i in this.selected)
-						{
-							if(GameState.unit[this.selected[i]] == null) continue;
-							if(unitgroups[GameState.unit[this.selected[i]].name] == undefined) unitgroups[GameState.unit[this.selected[i]].name] = new Array();
+						var unitgroups = [];
+						for(var i in this.selected) {
+							if(GameState.unit[this.selected[i]] === null) continue;
+							if(unitgroups[GameState.unit[this.selected[i]].name] === undefined) unitgroups[GameState.unit[this.selected[i]].name] = [];
 							unitgroups[GameState.unit[this.selected[i]].name].push(GameState.unit[this.selected[i]]) ;
 						}
 
-						for(var i in unitgroups)
-						{
-							unitmenu.append("<li><div>"+unitgroups[i].length+"</div><div>"+i+"</div></li>");
+						for(var iu in unitgroups) {
+							unitmenu.append("<li><div>"+unitgroups[iu].length+"</div><div>"+i+"</div></li>");
 						}
 
-						if( unit.menu == undefined || unit.menu.length == 0 ) return false;
-						for(var i in unit.menu)
-						{
-							var menuitem = unit.menu[i];
+						if(typeof unit.menu == "undefined" || unit.menu.length === 0 ) return false;
+						for(var im in unit.menu) {
+							var menuitem = unit.menu[im];
 							ordermenu.append("<li class='"+menuitem.c+"' onClick=\"Interface.unitorder("+unit.id+",'"+menuitem.o+"\','"+menuitem.d+"\')\">"+menuitem.d+"</li>");
 						}
 
@@ -198,14 +184,12 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 					},
 
 
-					prerender: function()
-					{
-						if(surface.mouse[0] && ExtraMath.distance(this.mousestart,surface.cursor) > 16)
-						{
+					prerender: function() {
+						if(surface.mouse[0] && ExtraMath.distance(this.mousestart,surface.cursor) > 16) {
 							surface.buffer.lineWidth=1;
 							surface.buffer.strokeStyle="#75CEDE";
 							surface.buffer.strokeRect(this.mousestart.x,this.mousestart.y,
-														surface.cursor.x-this.mousestart.x, surface.cursor.y-this.mousestart.y);
+													   surface.cursor.x-this.mousestart.x, surface.cursor.y-this.mousestart.y);
 						}
 
 						if(surface.key[38]) world.offset.delta.y += 10*maintimer.delta;
@@ -214,11 +198,9 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 						if(surface.key[39]) world.offset.delta.x -= 10*maintimer.delta;
 
 						if(surface.key[36]) this.home();
-
 					},
 
-					home: function()
-					{
+					home: function() {
 						//Find mothership
 						var ms_id = Game.mothership(GameState,1);
 						if(ms_id !== false)
@@ -228,16 +210,13 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 						}
 					},
 
-					find: function()
-					{
+					find: function() {
 						var aabb = [{x:0,y:0},{x:0,y:0}];
 
-						for( i in this.selected )
-						{
-							var unit = GameState.unit[this.selected[i]];
+						for( var is in this.selected ) {
+							var unit = GameState.unit[this.selected[is]];
 
-							if(i == 0)
-							{
+							if(is === 0) {
 								aabb[0].x = unit.pos.x;
 								aabb[0].y = unit.pos.y;
 								aabb[1].x = unit.pos.x;
@@ -254,12 +233,10 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 
 						global.world.offset.x = -ExtraMath.lerp(aabb[0].x,aabb[1].x,0.5)+world.view.x/2;
 						global.world.offset.y = -ExtraMath.lerp(aabb[0].y,aabb[1].y,0.5)+world.view.y/2;
-
 					},
 
-					init: function()
-					{
-						$("li.menutab").click(function(){
+					init: function() {
+						$("li.menutab").click(function() {
 
 							$(".tabmenu").hide();
 							$("li.menutab").removeClass("active");
@@ -270,8 +247,7 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 							$("div.tabmenu."+menuclass).show();
 						});
 
-						$("#backbuffer").mousemove(function(event)
-						{
+						$("#backbuffer").mousemove(function(event) {
 							var rect = surface.canvas.getBoundingClientRect();
 							surface.cursor.x = event.clientX - rect.left;
 							surface.cursor.y = event.clientY - rect.top;
@@ -279,15 +255,13 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 							world.cursor.y = (surface.cursor.y/world.grid)-world.offset.y;
 						});
 
-						$("#backbuffer").mousedown(function(event)
-						{
+						$("#backbuffer").mousedown(function(event) {
 							event.preventDefault();
 							surface.mouse[0] = true;
 							Interface.mousedown(event);
 						});
 
-						$("#backbuffer").mouseup(function(event)
-						{
+						$("#backbuffer").mouseup(function(event) {
 							event.preventDefault();
 							surface.mouse[0] = false;
 							Interface.mouseup(event);
@@ -296,26 +270,22 @@ define(['ExtraMath','GameState','Network','Game'],function(ExtraMath, GameState,
 							$("li.menutab").removeClass("active");
 						});
 
-						$(document).keydown(function(event){
+						$(document).keydown(function(event) {
 							event.preventDefault();
 							surface.key[event.keyCode]=true;
 							Interface.keydown(event);
 						});
 
-						$(document).keyup(function(event){
+						$(document).keyup(function(event) {
 							event.preventDefault();
 							surface.key[event.keyCode]=false;
 							Interface.keyup(event);
 							return false;
 						});
 					}
-
 				};
 
-
-
-	if(global.Interface == undefined)
-	{
+	if(typeof global.Interface == "undefined") {
 		global.Interface = Interface_object;
 		return global.Interface;
 	}

@@ -8,21 +8,18 @@ define(function(){
 		this.running = false;
 		this.delta = 1/50;
 
-		this.update = function update()
-		{
+		this.update = function update() {
 			this.tick = Date.now();
 			this.tick += this.offset;
-		}
+		};
 
-		this.server = function server(time)
-		{
+		this.server = function server(time) {
 			this.offset = time - Date.now();
-		}
+		};
 
-		this.init = function init()
-		{
+		this.init = function init() {
 			this.tick = Date.now();
-		}
+		};
 		this.init();
 
 		return this;

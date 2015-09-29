@@ -1,10 +1,8 @@
 define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, GameState)
 {
-	function UnitHardpoint(type,parent,pos)
-	{
+	function UnitHardpoint(type,parent,pos) {
 		this.init = init;
-		function init(type,parent,pos)
-		{
+		function init(type,parent,pos) {
 			this.type = type;
 			this.pos = pos;
 			this.parent = parent;
@@ -25,8 +23,7 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 		}
 
 		this.equip = equip;
-		function equip(weapon)
-		{
+		function equip(weapon) {
 			var valid = [];
 
 			switch(this.type)
@@ -45,8 +42,7 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 				break;
 			}
 
-			if(valid.indexOf(weapon) != -1)
-			{
+			if(valid.indexOf(weapon) != -1) {
 				this.warhead = weapon;
 
 				var projectile = new GameWarhead(this.warhead);
@@ -60,16 +56,14 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 
 
 		this.adjust = adjust;
-		function adjust()
-		{
-			switch(this.type)
-			{
+		function adjust() {
+			switch(this.type) {
 				case "auto turret":
 
 					var target = GameState.unit[this.target];
 
 					//There's nothing to shoot.
-					if(target == null) return false;
+					if(target === null || typeof target == "undefined") return false;
 
 					//Find the turret loction in world.
 					var offs = ExtraMath.rotatePoints(this.pos.x/world.grid,this.pos.y/world.grid,this.parent.rot);
@@ -77,20 +71,17 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 										 y:this.parent.pos.y+offs.y};
 
 					//Drop target if out of range.
-					targetdistance = ExtraMath.distance(worldlocation,target.pos);
-					if(targetdistance > this.stat.life * this.stat.speed)
-					{
+					targetdistance = ExtraMath.distance(worldlocation, target.pos);
+					if(targetdistance > this.stat.life * this.stat.speed) {
 						this.target = -1;
 						return false;
 					}
 
 					//Drop target if friendly and full hull
-					if(this.stat.target == "ally" && GameState.unit[this.target].stat.hull == GameState.unit[this.target].hull.max)
-					{
+					if(this.stat.target == "ally" && GameState.unit[this.target].stat.hull == GameState.unit[this.target].hull.max) {
 						this.target = -1;
 						return false;
 					}
-
 
 					//Correct for distance
 					var futuretarget = {x:0,y:0};
@@ -122,28 +113,24 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 				break;
 				default:
 					return false;
-				break;
 			}
 		}
 
 		this.valid_faction = valid_faction;
-		function valid_faction(target)
-		{
+		function valid_faction(target) {
 			if(this.parent.faction == target.faction && this.stat.target == "ally" && target.stat.hull < target.hull.max) return true;
 			if(this.parent.faction != target.faction && this.stat.target == "enemy") return true;
 			return false;
 		}
 
 		this.think = think;
-		function think()
-		{
-			switch(this.type)
-			{
+		function think() {
+			switch(this.type) {
 				case "auto turret":
 
-					var target = GameState.unit[this.target]
-					if(target == null || this.target == -1)
-					{
+					var target = GameState.unit[this.target];
+
+					if(target === null || this.target == -1) {
 						var offs = ExtraMath.rotatePoints(this.pos.x/world.grid,this.pos.y/world.grid,this.parent.rot);
 						var worldlocation = {x:this.parent.pos.x+offs.x,
 											 y:this.parent.pos.y+offs.y};
@@ -151,15 +138,12 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 						var range = this.stat.life * this.stat.speed;
 
 						var ailist = global.quadtree.query(worldlocation, range);
-						if(ailist.length > 0)
-						{
+						if(ailist.length > 0) {
 							var targetai = {d:1000,id:-1};
-							for(var i in ailist)
-							{
-								if(this.valid_faction(GameState.unit[ailist[i].id]) && GameState.unit[ailist[i].id].id != this.parent.id)
-								{
+							for(var i in ailist) {
+								if(this.valid_faction(GameState.unit[ailist[i].id]) && GameState.unit[ailist[i].id].id != this.parent.id) {
 									var d = ExtraMath.distance(this.pos,GameState.unit[ailist[i].id].pos);
-									if(targetai.d > d){targetai.d=d; targetai.id=ailist[i].id};
+									if(targetai.d > d){targetai.d=d; targetai.id=ailist[i].id;}
 								}
 							}
 							this.target=targetai.id;
@@ -169,27 +153,25 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 
 				default:
 					return false;
-				break;
 			}
 		}
 
 
 		this.fire = fire;
-		function fire()
-		{
+		function fire() {
 			var timer = new Date();
+			var offs, projectile;
 
 			//Don't fire if there's no ordinance loaded or there's a cooldown.
-			if(this.warhead == "") return false;
+			if(this.warhead === "") return false;
 			if(this.time > timer.getTime()) return false;
 
-			switch(this.type)
-			{
+			switch(this.type) {
 
 				case "forward gun":
-					var offs = ExtraMath.rotatePoints(this.pos.x/world.grid,this.pos.y/world.grid,this.parent.rot);
+					offs = ExtraMath.rotatePoints(this.pos.x/world.grid,this.pos.y/world.grid,this.parent.rot);
 
-					var projectile = new GameWarhead(this.warhead);
+					projectile = new GameWarhead(this.warhead);
 					projectile.pos.x = this.parent.pos.x+offs.x;
 					projectile.pos.y = this.parent.pos.y+offs.y;
 					projectile.ignore = this.parent.id;
@@ -199,13 +181,11 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 					this.time = timer.getTime()+projectile.stat.delay*1000;
 					projectile.launch();
 					return true;
-				break;
-
 
 				case "fixed salvo":
-					var offs = ExtraMath.rotatePoints(this.pos.x/world.grid,this.pos.y/world.grid,this.parent.rot);
+					offs = ExtraMath.rotatePoints(this.pos.x/world.grid,this.pos.y/world.grid,this.parent.rot);
 
-					var projectile = new GameWarhead(this.warhead);
+					projectile = new GameWarhead(this.warhead);
 					projectile.pos.x = this.parent.pos.x+offs.x;
 					projectile.pos.y = this.parent.pos.y+offs.y;
 					projectile.ignore = parent.id;
@@ -216,7 +196,6 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 					this.time = timer.getTime() + projectile.stat.delay*1000;
 					projectile.launch();
 					return true;
-				break;
 
 				default:
 				break;
@@ -224,12 +203,10 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 		}
 
 		this.render = render;
-		function render()
-		{
+		function render() {
 			var timer = new Date();
 
-			if(this.sprite != null)
-			{
+			if(this.sprite !== null) {
 				var offs = ExtraMath.rotatePoints(this.pos.x/world.grid,this.pos.y/world.grid,this.parent.rot);
 				var worldlocation = {x:this.parent.pos.x+offs.x,
 									 y:this.parent.pos.y+offs.y};
@@ -241,7 +218,7 @@ define(['ExtraMath','GameWarhead','GameState'],function(ExtraMath, GameWarhead, 
 				else
 					this.rendersprite = this.sprite.fire;
 
-				surface.drawSprite(this.rendersprite, screenlocation.x, screenlocation.y, this.rot-90,1)
+				surface.drawSprite(this.rendersprite, screenlocation.x, screenlocation.y, this.rot-90,1);
 			}
 		}
 

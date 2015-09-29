@@ -19,7 +19,7 @@ global.cloneOf = (function() {
 	  return function(o) {
 		F.prototype = o;
 		return new F();
-	  }
+    };
 }());
 
 global.server = true;
@@ -30,11 +30,9 @@ requirejs(['ExtraMath','GameUnit','QuadTree','Timer','Tileset','GameState','Netw
 	console.log("--World");
 	global.world = new Tileset();
 
-
-	global.Spawn = function(item,type,faction,id)
-	{
+	global.Spawn = function(item, type,faction,id) {
 		return new GameUnit(type,faction,{id:id});
-	}
+	};
 
 	world.load({x:0,y:0});
 
@@ -52,7 +50,7 @@ requirejs(['ExtraMath','GameUnit','QuadTree','Timer','Tileset','GameState','Netw
 
 	Console.init();
 
-	setInterval(function(){
+	setInterval(function() {
 		if(limiter.running) return;
 
 		global.frames++;
@@ -63,17 +61,17 @@ requirejs(['ExtraMath','GameUnit','QuadTree','Timer','Tileset','GameState','Netw
 		Game.update(GameState);
 		GameState.effect = [];
 
-		limiter.running = false;;
+		limiter.running = false;
 	},20);
 
-	setInterval(function(){
+	setInterval(function() {
 		for(var i in GameState.unit)
-			if(GameState.unit[i] != null)
+			if(GameState.unit[i] !== null)
 				GameState.unit[i].think();
 	},500);
 
 	//Periodic save
-	setInterval(function(){
+	setInterval(function() {
 		world.save();
 	},60000);
 
@@ -85,7 +83,7 @@ requirejs(['ExtraMath','GameUnit','QuadTree','Timer','Tileset','GameState','Netw
 	},1000);
 	*/
 
-	setInterval(function(){
+	setInterval(function() {
 		global.FPS = global.frames*2;
 		global.frames = 0;
 	},500);

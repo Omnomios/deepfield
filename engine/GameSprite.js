@@ -3,7 +3,7 @@ define(['GameAsset','../assets/sprites.json'],function(GameAsset,SpriteData)
 
 	function GameSprite(id)
 	{
-		if(id == undefined)
+		if(typeof id == "undefined")
 			return null;
 
 		if(this.init(id))
@@ -13,36 +13,37 @@ define(['GameAsset','../assets/sprites.json'],function(GameAsset,SpriteData)
 	GameSprite.prototype = {
 		init : function init(id)
 		{
+			var spritedata;
+
 			if(typeof id === 'object')
-				var spritedata = id;
-
+				spritedata = id;
 			if(typeof id === 'string')
-				var spritedata = SpriteData[id];
+				spritedata = SpriteData[id];
 
-			if(spritedata == null) return false;
+			if(typeof spritedata == "undefined") return false;
 
 			this.frameindex = 0;
 
 			this.frames = Array();
-			for(var i in spritedata)
-			{
-				if(i == "frames")
-				{
-					for(var ii in spritedata[i])
-					{
+			for(var i in spritedata) {
+				if(i == "frames") {
+					for(var ii in spritedata[i]) {
 						var spriteframe = spritedata[i][ii];
 
 						var spriteasset = new GameAsset(spriteframe.asset);
 
-						if(spriteframe.type == "sequence")
-						{
+						if(spriteframe.type == "sequence") {
 							this.fps = spriteframe.fps;
 
-							for(var fi=0; fi < spriteframe.count; fi++)
-							{
-
+							for(var fi=0; fi < spriteframe.count; fi++) {
 								var y = Math.floor(spriteframe.w * fi / spriteasset.image.width);
-								var x = fi - y * spriteframe.w;
+								var x = fi - (spriteasset.image.width/spriteframe.w) * y;
+
+								//It's wrappin gback to -700 for somereason.
+
+								if(spriteframe.asset == "detonation") {
+									console.log(fi, y, spriteframe.w,spriteasset.image.width,spriteasset.image.width/spriteframe.w,x);
+								}
 
 								this.frames.push(
 												{x:spriteframe.x + spriteframe.w * x,
@@ -66,16 +67,14 @@ define(['GameAsset','../assets/sprites.json'],function(GameAsset,SpriteData)
 			return true;
 		},
 
-		box : function box(id)
-		{
+		box : function box(id) {
 			var w=0,h=0,c=0;
 
-			if("frames" in this)
-			{
-				for(i in this.frames)
+			if("frames" in this) {
+				for(var ir in this.frames)
 				{
-					w+=this.frames[i].w;
-					h+=this.frames[i].h;
+					w+=this.frames[ir].w;
+					h+=this.frames[ir].h;
 					c++;
 				}
 				w/=c;
@@ -84,9 +83,8 @@ define(['GameAsset','../assets/sprites.json'],function(GameAsset,SpriteData)
 				return {x:w,y:h};
 			}
 
-			for(var i in this)
-			{
-				var childbox = this[i].box();
+			for(var ic in this) {
+				var childbox = this[ic].box();
 
 				if(childbox.x > 0 && childbox.y > 0)
 					return childbox;
@@ -95,8 +93,7 @@ define(['GameAsset','../assets/sprites.json'],function(GameAsset,SpriteData)
 			return {x:0,y:0};
 		},
 
-		frame : function frame(index)
-		{
+		frame : function frame(index) {
 			if(typeof index != "undefined")
 				this.frameindex = index;
 
@@ -106,8 +103,7 @@ define(['GameAsset','../assets/sprites.json'],function(GameAsset,SpriteData)
 			if(typeof frames[this.frameindex] == "undefined")
 				return {x:0,y:0,w:0,h:0};
 
-			for(var i in this)
-			{
+			for(var i in this) {
 				var childframe = this.frames[i].frame(this.frameindex);
 				if(childframe.w > 0 && childframe.h > 0)
 					return childframe;
@@ -116,18 +112,15 @@ define(['GameAsset','../assets/sprites.json'],function(GameAsset,SpriteData)
 			return {x:0,y:0,w:0,h:0};
 		},
 
-		alpha : function alpha(point)
-		{
-			if("frames" in this)
-			{
-				if(global.GameAssets[this.frames[0].asset] == undefined)
+		alpha : function alpha(point) {
+			if("frames" in this) {
+				if(typeof global.GameAssets[this.frames[0].asset] == "undefined")
 					var asset = new GameAsset(this.frames[0].asset);
 
 				return global.GameAssets[this.frames[0].asset].alpha(point);
 			}
 
-			for(var i in this)
-			{
+			for(var i in this) {
 				var childalpha = this[i].alpha();
 
 				if(childalpha > 0)
@@ -136,26 +129,21 @@ define(['GameAsset','../assets/sprites.json'],function(GameAsset,SpriteData)
 			return 0;
 		},
 
-		image : function image()
-		{
-			if("frames" in this)
-			{
-				if(global.GameAssets[this.frames[0].asset] == undefined)
+		image : function image() {
+			if("frames" in this) {
+				if(typeof global.GameAssets[this.frames[0].asset] == "undefined")
 					var asset = new GameAsset(this.frames[0].asset);
-
 				return global.GameAssets[this.frames[0].asset].image;
 			}
 
-			for(var i in this)
-			{
+			for(var i in this) {
 				if(typeof this[i].image != "undefined")
 					return this[i].image;
 			}
 			return undefined;
 		}
 
-	}
+	};
 
 	return GameSprite;
-
 });

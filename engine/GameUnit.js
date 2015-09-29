@@ -22,13 +22,11 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 		this.shield = [];
 		this.active = true;
 		this.name = "Unknown";
-		this.cargo = new Array();
+		this.cargo = [];
 		this.build = [];
 
-		if(this.init(type_object,faction))
-		{
-			if(typeof state.id === "undefined")
-			{
+		if(this.init(type_object,faction)) {
+			if(typeof state.id === "undefined") {
 				this.id = global.GameState.unit.length;
 				global.GameState.unit.push(this);
 				if(typeof state !== "undefined") this.set(state);
@@ -45,24 +43,23 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 
 	GameUnit.prototype = {
 
-		init : function init(type,faction)
-		{
-			if(type == undefined) return false;
+		init : function init(type,faction) {
+			if(typeof type == "undefined") return false;
 
 			this.faction = faction;
 
 			this.sprite = new GameSprite(Resource("../assets/hull/"+this.type+"/sprite"));
 
-			if(type.hull != undefined)			this.hull = type.hull;
-			if(type.shield != undefined)		this.shield = type.shield;
-			if(type.menu != undefined)			this.menu = type.menu;
-			if(type.name != undefined)			this.name = type.name;
+			if(typeof type.hull != "undefined")			this.hull = type.hull;
+			if(typeof type.shield != "undefined")		this.shield = type.shield;
+			if(typeof type.menu != "undefined")			this.menu = type.menu;
+			if(typeof type.name != "undefined")			this.name = type.name;
 
-			if(this.hull == undefined) return false;
+			if(typeof this.hull == "undefined") return false;
 
 			this.stat = {shield:this.shield.max, hull:this.hull.max, ammo:this.hull.ammo};
 
-			if(type.hardpoints != undefined)
+			if(typeof type.hardpoints != "undefined")
 			for(var i in type.hardpoints)
 			{
 				var hp = type.hardpoints[i];
@@ -75,33 +72,31 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 				this.hardpoint.push(hpo);
 			}
 
-			for(var i in this.hardpoint)
-				this.range += (this.hardpoint[i].stat.life * this.hardpoint[i].stat.speed);
+			for(var ih in this.hardpoint)
+				this.range += (this.hardpoint[ih].stat.life * this.hardpoint[ih].stat.speed);
 			this.range /= this.hardpoint.length;
 
 			return true;
 		},
 
-		set : function set(data)
-		{
-			if(data.faction != undefined) 		this.faction = data.faction;
-			if(data.cargo != undefined) 		this.cargo = data.cargo;
-			if(data.build != undefined) 		this.build = data.build;
-			if(data.pos != undefined)			this.pos = data.pos;
-			if(data.rot != undefined) 			this.rot = data.rot;
-			if(data.del != undefined) 			this.delta = data.del;
-			if(data.stat != undefined) 			this.stat = data.stat;
-			if(data.target != undefined)		this.target = data.target;
-			if(data.name != undefined) 			this.name = data.name;
-			if(data.type != undefined) 			this.type = data.type;
-			if(data.thrust != undefined)		this.thrust = data.thrust;
-			if(data.lastimpact != undefined)	this.lastimpact = data.lastimpact;
-			if(data.active != undefined) 		this.active = data.active;
+		set : function set(data) {
+			if(typeof data.faction != "undefined") 		this.faction = data.faction;
+			if(typeof data.cargo != "undefined") 		this.cargo = data.cargo;
+			if(typeof data.build != "undefined") 		this.build = data.build;
+			if(typeof data.pos != "undefined")			this.pos = data.pos;
+			if(typeof data.rot != "undefined") 			this.rot = data.rot;
+			if(typeof data.del != "undefined") 			this.delta = data.del;
+			if(typeof data.stat != "undefined") 		this.stat = data.stat;
+			if(typeof data.target != "undefined")		this.target = data.target;
+			if(typeof data.name != "undefined") 		this.name = data.name;
+			if(typeof data.type != "undefined") 		this.type = data.type;
+			if(typeof data.thrust != "undefined")		this.thrust = data.thrust;
+			if(typeof data.lastimpact != "undefined")	this.lastimpact = data.lastimpact;
+			if(typeof data.active != "undefined") 		this.active = data.active;
 			return true;
 		},
 
-		get : function get()
-		{
+		get : function get() {
 			return {
 				pos:		this.pos,
 				del:		this.delta,
@@ -121,9 +116,8 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 
 		},
 
-		hit : function hit(location, origin)
-		{
-			if(this == undefined) return;
+		hit : function hit(location, origin) {
+			if(typeof this == "undefined") return;
 			var tolerance = 200;
 			var rayprecision = 0.1;
 			var dis = ExtraMath.distance(this.pos,location);
@@ -132,8 +126,7 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 			var width = frame.w;
 			var height = frame.h;
 
-			if(dis < (frame.w/2)/global.world.grid)
-			{
+			if(dis < (frame.w/2)/global.world.grid) {
 				//If there's a shield, just hit the circle;
 				if(this.stat.shield > 2) return location;
 
@@ -163,7 +156,7 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 				if(this.sprite.still.alpha(sprite_location) > tolerance)
 				{
 					//Can't establish a vector, just report the location.
-					if(origin == undefined) return location;
+					if(typeof origin == "undefined") return location;
 
 					var zeroorigin = {x:(this.pos.x-origin.x)*global.world.grid,
 									  y:(this.pos.y-origin.y)*global.world.grid};
@@ -187,20 +180,16 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 			return false;
 		},
 
-		impact : function impact(projectile)
-		{
+		impact : function impact(projectile) {
 			var massfactor = projectile.stat.mass / this.hull.mass;
 			var momentum = ExtraMath.rotatePoints(0,-((projectile.stat.speed * massfactor)/global.world.grid), projectile.rot);
 
-			if(this.stat.shield > 2 && projectile.stat.target == "enemy")
-			{
+			if(this.stat.shield > 2 && projectile.stat.target == "enemy") {
 				this.stat.shield -= projectile.stat.power.shield;
 				if(this.stat.shield < 0) this.stat.hull += this.stat.shield;
 
 				var fx = new ClientEffect(this.sprite.shield,this.pos,1 * (this.sprite.still.box().w / this.sprite.shield.box().w),ExtraMath.angle(this.pos,projectile.pos));
-			}
-			else
-			{
+			} else {
 				this.stat.hull -= projectile.stat.power.hull;
 				projectile.explode(this);
 
@@ -213,22 +202,19 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 			this.lastimpact = global.maintimer.tick;
 		},
 
-		destroy : function destroy()
-		{
+		destroy : function destroy() {
 			this.qt.remove(this.id,"ai",this.pos);
 			global.GameState.unit[this.id] = null;
 		},
 
-		order : function order(type, data, stamp)
-		{
-			switch(type)
-			{
+		order : function order(type, data, stamp) {
+			switch(type) {
 				case "move":
 					this.target.type = "move";
 					this.target.move.x = data.x;
 					this.target.move.y = data.y;
 
-					if(stamp != undefined)
+					if(typeof stamp != "undefined")
 						this.target.stamp = stamp;
 
 					this.update();
@@ -241,32 +227,35 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 
 				case "build":
 					this.build.push({unit:data,stamp:stamp});
-
 					this.update();
 				break;
 			}
 		},
 
-		set_qt : function set_qt()
-		{
-			if(this.qt != undefined)
+		set_qt : function set_qt() {
+			//If no longer in the specified QT
+			if(typeof this.qt != "undefined")
 				if(!ExtraMath.hitrect(this.qt.boundary,this.pos))
 					this.qt.remove({type:"ai",id:this.id});
 
-			if(this.qt != undefined && !this.qt.valid)
+			//Check for an invalid QT
+			if(typeof this.qt != "undefined" && !this.qt.valid)
 				delete this.qt;
 
-			if(this.qt == undefined || this.qt == null)
+			//Sometimes the unit holds onto the QT after being discarded.
+			if(typeof this.qt != "undefined" && this.qt.node.length === 0)
+				delete this.qt;
+
+			//Insert into new QT.
+			if(typeof this.qt == "undefined" || this.qt === null)
 				if(!global.quadtree.insert({id:this.id,type:"ai",point:this.pos})) console.log("failed to insert at ",this.pos);
 		},
 
 
-		think : function think()
-		{
+		think : function think() {
 			if(!this.active) return false;
 
-			switch(this.target.type)
-			{
+			switch(this.target.type) {
 				case "move":
 				break;
 				case "attack":
@@ -274,12 +263,11 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 					if(!this.validtarget) this.target.type = "";
 					var target = global.GameState.unit[this.target.attack.id];
 
-					if(target!= null && target != undefined && target.pos != undefined && ExtraMath.distance(this.pos,target.pos)> this.range || ExtraMath.distance(this.pos,this.target.move) > this.range/2)
-					{
+					if(target !== null && typeof target != "undefined" && typeof target.pos != "undefined" && ExtraMath.distance(this.pos,target.pos)> this.range || ExtraMath.distance(this.pos,this.target.move) > this.range/2) {
 						this.target.attack.d = 10;
 						var targetangle = ExtraMath.angle(this.pos,target.pos);
 
-						var point = ExtraMath.rotatePoints(0,-this.range*0.7,targetangle+180)
+						var point = ExtraMath.rotatePoints(0,-this.range*0.7,targetangle+180);
 
 						this.target.move.x = global.GameState.unit[this.target.attack.id].pos.x+point.x;
 						this.target.move.y = global.GameState.unit[this.target.attack.id].pos.y+point.y;
@@ -303,16 +291,15 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 					*/
 					//Kill something!
 					var ailist = global.quadtree.query(this.pos,this.hull.vision);
-					if(ailist.length>0)
-					{
+					if(ailist.length>0) {
 						var targetai = {d:this.hull.vision,id:-1};
 
-						for(var i in ailist)
-						{
-							if(ailist[i].id != this.id && global.GameState.unit[ailist[i].id].faction != this.faction)
-							{
+						for(var i in ailist) {
+							if(ailist[i].id != this.id && global.GameState.unit[ailist[i].id].faction != this.faction) {
 								var d = ExtraMath.distance(this.pos,global.GameState.unit[ailist[i].id].pos);
-								if(targetai.d > d && d){targetai.d=d; targetai.id=ailist[i].id};
+								if(targetai.d > d && d) {
+									targetai.d=d; targetai.id=ailist[i].id;
+								}
 							}
 						}
 
@@ -322,32 +309,30 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 
 			}
 
-			for(var i in this.hardpoint)
-				this.hardpoint[i].think();
+			for(var ih in this.hardpoint)
+				this.hardpoint[ih].think();
 
 		},
 
-		update: function update()
-		{
+		update: function update() {
 			if(typeof global.Network.broadcast != "function") return false;
 			global.Network.broadcast(JSON.stringify({action:'update',delta:global.maintimer.delta,unit:this.get()}));
 		},
 
-		validtarget : function validtarget()
-		{
-			if(this.target.attack.id == undefined)
+		validtarget : function validtarget() {
+			if(typeof this.target.attack.id == "undefined")
 				return false;
 
 			if(this.target.attack.id < 0)
 				return false;
 
-			if(global.GameState.unit[this.target.attack.id] == undefined)
+			if(typeof global.GameState.unit[this.target.attack.id] == "undefined")
 				return false;
 
-			if(global.GameState.unit[this.target.attack.id] == null)
+			if(global.GameState.unit[this.target.attack.id] === null)
 				return false;
 
-			if(global.GameState.unit[this.target.attack.id].pos == undefined)
+			if(typeof global.GameState.unit[this.target.attack.id].pos == "undefined")
 				return false;
 
 			if(this.target.attack.id == this.id)
@@ -359,17 +344,16 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 			return true;
 		},
 
-		navigate : function navigate()
-		{
+		navigate : function navigate() {
 			if(!this.active || this.target.stamp > global.maintimer.tick) return false;
 
-			targetdistance 	= ExtraMath.distance(this.pos,this.target.move)
+			targetdistance 	= ExtraMath.distance(this.pos,this.target.move);
 			targetangle 	= ExtraMath.angle(this.pos,this.target.move);
 			targetspan 		= ExtraMath.short_angle(this.rot,targetangle);
 			velocity 		= ExtraMath.distance({x:0.0,y:0.0},{x:this.delta.x,y:this.delta.y});
 
-			var MoveDirection = 0
-			var TurnDirection = 0
+			var MoveDirection = 0;
+			var TurnDirection = 0;
 
 			if(targetdistance > 0.3)	MoveDirection = 0.1;
 			if(targetdistance > 1)		MoveDirection = 0.5;
@@ -380,40 +364,32 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 
 			if(targetspan < -45 || targetspan > 45 ) MoveDirection *= 0.5;
 
-			if(this.target.type=="attack")
-			{
-				if(this.validtarget())
-				{
+			if(this.target.type=="attack") {
+				if(this.validtarget()) {
 					targetdistance = ExtraMath.distance(this.pos,global.GameState.unit[this.target.attack.id].pos);
 					//Correct for distance
 					var target = {x:0,y:0};
 					target.x = global.GameState.unit[this.target.attack.id].pos.x + (global.GameState.unit[this.target.attack.id].delta.x*global.maintimer.delta)*(targetdistance*3);
 					target.y = global.GameState.unit[this.target.attack.id].pos.y + (global.GameState.unit[this.target.attack.id].delta.y*global.maintimer.delta)*(targetdistance*3);
 
-					if(targetdistance < 1)
-					{
+					if(targetdistance < 1) {
 						MoveDirection = 0;
 					}
 
-					targetdistance 	= ExtraMath.distance(	this.pos,global.GameState.unit[this.target.attack.id].pos)
+					targetdistance 	= ExtraMath.distance(	this.pos,global.GameState.unit[this.target.attack.id].pos);
 					targetangle 	= ExtraMath.angle(		this.pos,global.GameState.unit[this.target.attack.id].pos);
 					targetspan		= ExtraMath.short_angle(this.rot,targetangle);
 
 					if(targetspan > 1)	TurnDirection = -1;
 					if(targetspan < -1)	TurnDirection = 1;
 
-					if(Math.abs(targetspan) < 19)
-					{
-						if(targetdistance < this.range)
-						{
+					if(Math.abs(targetspan) < 19) {
+						if(targetdistance < this.range) {
 							for(var i in this.hardpoint)
 								this.hardpoint[i].fire();
 						}
 					}
-
-				}
-				else
-				{
+				} else {
 					this.target.type = "";
 				}
 			}
@@ -423,13 +399,10 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 			this.thrust  += ((MoveDirection * this.hull.speed) - this.thrust) * acc;
 
 			//Time to build!
-			if(this.build.length > 0 && global.server)
-			{
-				if(this.build[0].stamp < global.maintimer.tick)
-				{
+			if(this.build.length > 0 && global.server) {
+				if(this.build[0].stamp < global.maintimer.tick) {
 					order = this.build.shift();
-					if(typeof global.Network.broadcast == "function")
-					{
+					if(typeof global.Network.broadcast == "function") {
 						var apos = ExtraMath.rotatePoints(0,-1,Math.random()*360);
 
 						var state = {
@@ -451,16 +424,12 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 					}
 				}
 			}
-
-
 		},
 
-		adjust : function adjust()
-		{
+		adjust : function adjust() {
 			this.set_qt();
 
-			if(this.thrust !=0)
-			{
+			if(this.thrust !== 0) {
 				thrust = ExtraMath.rotatePoints(0,-this.thrust, this.rot);
 				this.pos.x	+= thrust.x* global.maintimer.delta;
 				this.pos.y	+= thrust.y* global.maintimer.delta;
@@ -472,9 +441,11 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 			this.pos.x 	= ExtraMath.wrap(this.pos.x, -global.world.size.x, global.world.size.x);
 			this.pos.y 	= ExtraMath.wrap(this.pos.y, -global.world.size.y, global.world.size.y);
 
+			/*
 			this.delta.x = ExtraMath.damp(this.delta.x,0.8,global.maintimer.delta);
 			this.delta.y = ExtraMath.damp(this.delta.y,0.8,global.maintimer.delta);
 			this.delta.r = ExtraMath.damp(this.delta.r,0.8,global.maintimer.delta);
+			*/
 
 			//Recharge
 			if(this.active)
@@ -491,22 +462,22 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 				this.hardpoint[i].adjust();
 
 			//Critical damage
-			if(this.stat.hull == 0)
+			if(this.stat.hull === 0) {
+				var fx = new ClientEffect("detonate2", this.pos, 1, 0);
 				this.destroy();
+			}
 		},
 
-		render : function render()
-		{
+		render : function render() {
 			var screencoord = surface.coord(this.pos);
 
 			if(this.thrust > 0.2)
-				surface.drawSprite(this.sprite.moving, screencoord.x, screencoord.y, this.rot-90,1)
+				surface.drawSprite(this.sprite.moving, screencoord.x, screencoord.y, this.rot-90,1);
 			else
-				surface.drawSprite(this.sprite.still, screencoord.x, screencoord.y, this.rot-90,1)
+				surface.drawSprite(this.sprite.still, screencoord.x, screencoord.y, this.rot-90,1);
 
 
-			if(Interface.selected.indexOf(this.id) != -1)
-			{
+			if(Interface.selected.indexOf(this.id) != -1) {
 				var frame = this.sprite.still.frame();
 
 				statradius = (frame.w/2)+2;
@@ -530,24 +501,21 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 				surface.buffer.stroke();
 
 				//Render Shield strength
-				if(Math.floor(shieldpoint) != 170)
-				{
+				if(Math.floor(shieldpoint) != 170) {
 					surface.buffer.beginPath();
 					surface.buffer.strokeStyle="#001133";
 					surface.buffer.arc(screencoord.x, screencoord.y, statradius, 170 * ExtraMath.TO_RADIANS, shieldpoint * ExtraMath.TO_RADIANS, true);
 					surface.buffer.stroke();
 				}
 
-				if(Math.floor(shieldpoint) != 10)
-				{
+				if(Math.floor(shieldpoint) != 10) {
 					surface.buffer.beginPath();
 					surface.buffer.strokeStyle="#00aaff";
 					surface.buffer.arc(screencoord.x,screencoord.y,statradius, shieldpoint*ExtraMath.TO_RADIANS,10*ExtraMath.TO_RADIANS,true);
 					surface.buffer.stroke();
 				}
 
-				if(ExtraMath.distance(this.pos,this.target.move) > 1 && this.target.type != "attack")
-				{
+				if(ExtraMath.distance(this.pos,this.target.move) > 1 && this.target.type != "attack") {
 					surface.buffer.lineWidth=1;
 					surface.buffer.strokeStyle="#003333";
 					var waypoint = surface.coord(this.target.move);
@@ -559,6 +527,12 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 				}
 			}
 
+			/*
+			surface.buffer.fillStyle="#E00";
+			surface.buffer.font="12px Arial";
+			surface.buffer.fillText(this.qt.id,screencoord.x,screencoord.y);
+			*/
+
 			for(var i in this.hardpoint)
 				this.hardpoint[i].render();
 		}
@@ -566,7 +540,3 @@ define(['ExtraMath','UnitHardpoint','GameWarhead','ClientEffect','GameSprite','R
 
 	return GameUnit;
 });
-
-
-
-

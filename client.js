@@ -13,7 +13,7 @@ global.cloneOf = (function() {
 	  return function(o) {
 		F.prototype = o;
 		return new F();
-	  }
+    };
 }());
 
 require.config({
@@ -50,17 +50,18 @@ require(['ExtraMath','GameUnit','QuadTree','Timer','Tileset','GameState','Screen
 
 	global.end_simulation = function()
 	{
-		if(global.running == false)
+		if(global.running === false)
 			return false;
-		global.running = false;
+
+        global.running = false;
 
 		clearInterval(global.mainloop);
 		clearInterval(global.mainthink);
-	}
+	};
 
 	global.begin_simulation = function()
 	{
-		if(global.running == true)
+		if(global.running === true)
 			return false;
 		global.running = true;
 
@@ -90,19 +91,18 @@ require(['ExtraMath','GameUnit','QuadTree','Timer','Tileset','GameState','Screen
 			Game.render(GameState);
 
 			//global.quadtree.render();
-			global.maintimer.running = false;;
+			global.maintimer.running = false;
 		},20);
 
 		global.mainthink = setInterval(function(){
 			for(var i in GameState.unit)
 			{
-				if(GameState.unit[i] != null)
-				{
+				if(GameState.unit[i] !== null) {
 					GameState.unit[i].think();
 				}
 			}
 		},500);
-	}
+	};
 
 	setInterval(function(){
 		global.FPS = global.frames*2;
@@ -112,8 +112,8 @@ require(['ExtraMath','GameUnit','QuadTree','Timer','Tileset','GameState','Screen
 	global.Spawn = function(item,type,faction,id)
 	{
 		return new GameUnit(type,faction,{id:id});
-	}
+	};
 
 	$("div.dialog p.detail").html("Connecting to server.");
-	Network.connect("forseti.twosphere.net.au",8080);
+	Network.connect("localhost",8080);
 });

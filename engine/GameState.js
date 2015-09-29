@@ -5,25 +5,22 @@ define(function()
 			unit:[],
 			warhead:[],
 			effect:[],
+			dev_qt:[],
 
 			hold:false,
 
-			set:function(data)
-			{
-				for(i in data.unit)
-				{
+			set:function(data) {
+				for(var i in data.unit) {
 					i = parseInt(i);
 					var unit = data.unit[i];
 
-					if(unit == null)
-					{
-						if(this.unit[i] != null)
+					if(unit === null) {
+						if(typeof this.unit[i] !== "undefined")
 							this.unit[i].destroy();
 						continue;
 					}
 
-					if(typeof this.unit[i] != "undefined" && this.unit[i] != null)
-					{
+					if(typeof this.unit[i] != "undefined" && this.unit[i] !== null) {
 						this.unit[i].set(data.unit[i]);
 						continue;
 					}
@@ -33,16 +30,13 @@ define(function()
 				}
 			},
 
-			get:function()
-			{
+			get:function() {
 				var output = {unit:[]};
 
-				for(var i in this.unit)
-				{
+				for(var i in this.unit) {
 					var unit = this.unit[i];
-					if( unit != null)
-					{
-						output['unit'][i] = unit.get();
+					if( unit !== null) {
+						output.unit[i] = unit.get();
 					}
 				}
 
@@ -52,7 +46,6 @@ define(function()
 
 	};
 
-	if(global.GameState == undefined) global.GameState = GameState_object;
+	if(typeof global.GameState == "undefined") global.GameState = GameState_object;
 	return global.GameState;
 });
-
